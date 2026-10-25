@@ -1,0 +1,29 @@
+# infra
+
+Servers for Wickwise in HCL for [OpenTofu](https://opentofu.org) (Terraform works too), at any cloud or on hardware you already have.
+
+- `modules/host`: the provider-neutral bootstrap that every server runs.
+- `existing`: runs the bootstrap over SSH on any server you have.
+
+Once a cloud is chosen, a small setup for it goes next to `existing`. It only creates the machine and runs the same bootstrap at first boot.
+
+Every server ends up the same:
+
+- **Access:** a `deploy` user with your SSH keys. SSH takes keys only; root cannot log in.
+- **Firewall:** only SSH comes in, and only from `admin_cidrs`. fail2ban watches it.
+- **Upkeep:** security updates install themselves, and the server gets swap.
+- **Runtime:** Docker with Compose and log rotation.
+
+## Use
+
+```sh
+cd existing
+tofu init
+tofu apply -var host=SERVER_IP -var 'ssh_public_keys=["ssh-ed25519 AAAA... you"]' -var 'admin_cidrs=["YOUR.IP/32"]'
+```
+
+The first run logs in as the provider's user, often root; from the second run on, add `-var user=deploy`. Then allow the server's IP on the exchange API key and deploy services over SSH. For the engine, that is `./deploy.sh deploy@SERVER_IP` in [wickwise/trader](https://github.com/wickwise/trader).
+
+State stays local and out of git. It holds no secrets: keys and `.env` reach the server through each service's deploy, never through here.
+
+`tofu -chdir=modules/host test` checks the bootstrap.

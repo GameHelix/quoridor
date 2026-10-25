@@ -1,0 +1,22 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_wrapper: false
+      - run: tofu fmt -check -recursive
+      - run: tofu -chdir=existing init -backend=false -input=false && tofu -chdir=existing validate
+      - run: tofu -chdir=modules/host init -input=false && tofu -chdir=modules/host test
+      - name: shellcheck the rendered bootstrap
+        run: |
+          cd modules/host/tests/render
+          tofu init -input=false
+          tofu apply -auto-approve -input=false
+          tofu output -raw user_data | shellcheck -s bash -
