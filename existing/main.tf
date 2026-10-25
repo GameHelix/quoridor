@@ -53,13 +53,13 @@ resource "terraform_data" "bootstrap" {
 
   provisioner "file" {
     content     = module.host.user_data
-    destination = "/tmp/wickwise-bootstrap.sh"
+    destination = "/tmp/candylario-bootstrap.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "if [ \"$(id -u)\" -eq 0 ]; then bash /tmp/wickwise-bootstrap.sh; else sudo bash /tmp/wickwise-bootstrap.sh; fi",
-      "rm -f /tmp/wickwise-bootstrap.sh",
+      "if [ \"$(id -u)\" -eq 0 ]; then bash /tmp/candylario-bootstrap.sh; else sudo bash /tmp/candylario-bootstrap.sh; fi",
+      "rm -f /tmp/candylario-bootstrap.sh",
     ]
   }
 }

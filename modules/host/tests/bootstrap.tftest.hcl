@@ -11,7 +11,7 @@ run "renders_a_locked_down_host" {
     error_message = "SSH must take keys only and refuse root."
   }
   assert {
-    condition     = strcontains(output.user_data, "ufw allow from 203.0.113.7/32 to any port 22 proto tcp comment wickwise-ssh") && strcontains(output.user_data, "ufw allow from 2001:db8::/64 to any port 22")
+    condition     = strcontains(output.user_data, "ufw allow from 203.0.113.7/32 to any port 22 proto tcp comment candylario-ssh") && strcontains(output.user_data, "ufw allow from 2001:db8::/64 to any port 22")
     error_message = "SSH must be open to each admin network."
   }
   assert {

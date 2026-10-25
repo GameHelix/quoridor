@@ -1,6 +1,6 @@
 # infra
 
-Servers for Wickwise in HCL for [OpenTofu](https://opentofu.org) (Terraform works too), at any cloud or on hardware you already have.
+Servers for Candylario in HCL for [OpenTofu](https://opentofu.org) (Terraform works too), at any cloud or on hardware you already have.
 
 - `modules/host`: the provider-neutral bootstrap that every server runs.
 - `existing`: runs the bootstrap over SSH on any server you have.
@@ -22,7 +22,7 @@ tofu init
 tofu apply -var host=SERVER_IP -var 'ssh_public_keys=["ssh-ed25519 AAAA... you"]' -var 'admin_cidrs=["YOUR.IP/32"]'
 ```
 
-The first run logs in as the provider's user, often root; from the second run on, add `-var user=deploy`. Then allow the server's IP on the exchange API key and deploy services over SSH. For the engine, that is `./deploy.sh deploy@SERVER_IP` in [wickwise/trader](https://github.com/wickwise/trader).
+The first run logs in as the provider's user, often root; from the second run on, add `-var user=deploy`. Then allow the server's IP on the exchange API key and deploy services over SSH. For the engine, that is `./deploy.sh deploy@SERVER_IP` in [candylario/trader](https://github.com/candylario/trader).
 
 State stays local and out of git. It holds no secrets: keys and `.env` reach the server through each service's deploy, never through here.
 

@@ -1,4 +1,4 @@
-# The provider-neutral part of a Wickwise server: one bootstrap script that
+# The provider-neutral part of a Candylario server: one bootstrap script that
 # every provider runs at first boot as user data, and that the "existing"
 # setup runs over SSH.
 

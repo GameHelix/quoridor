@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prepares a Debian or Ubuntu server to run Wickwise services: a deploy user
+# Prepares a Debian or Ubuntu server to run Candylario services: a deploy user
 # with SSH keys, key-only SSH without root, a firewall that lets in only SSH,
 # fail2ban, automatic security updates, swap, and Docker with Compose.
 # Providers run it at first boot; running it again changes nothing that is
@@ -52,7 +52,7 @@ chmod 440 "/etc/sudoers.d/90-$user"
 install -d -m 755 -o "$user" -g "$user" /srv
 
 # Keys only, and no root. The first file read wins, so this one comes first.
-cat >/etc/ssh/sshd_config.d/10-wickwise.conf <<'SSHD'
+cat >/etc/ssh/sshd_config.d/10-candylario.conf <<'SSHD'
 PermitRootLogin no
 PasswordAuthentication no
 KbdInteractiveAuthentication no
@@ -66,11 +66,11 @@ systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
 # run are replaced; other rules on the server are left alone.
 ufw default deny incoming
 ufw default allow outgoing
-while n=$(ufw status numbered | awk -F'[][]' '/wickwise-ssh/ {print $2 + 0; exit}') && [ -n "$n" ]; do
+while n=$(ufw status numbered | awk -F'[][]' '/candylario-ssh/ {print $2 + 0; exit}') && [ -n "$n" ]; do
   ufw --force delete "$n" >/dev/null
 done
 %{ for cidr in admin_cidrs ~}
-ufw allow from ${cidr} to any port 22 proto tcp comment wickwise-ssh
+ufw allow from ${cidr} to any port 22 proto tcp comment candylario-ssh
 %{ endfor ~}
 ufw --force enable
 systemctl enable --now fail2ban
@@ -89,4 +89,4 @@ if [ "$swap_gb" -gt 0 ] && [ -z "$(swapon --show --noheadings)" ]; then
   grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >>/etc/fstab
 fi
 
-echo "wickwise: host ready"
+echo "candylario: host ready"
