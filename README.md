@@ -25,11 +25,11 @@ tofu apply -var host=SERVER_IP -var 'ssh_public_keys=["ssh-ed25519 AAAA... you"]
 
 The first run logs in as the provider's user, often root; from the second run on, add `-var user=deploy`.
 
-At Hetzner, with an API token in a gitignored `secret.auto.tfvars` (or in `HCLOUD_TOKEN`):
+At Hetzner, with an API token as `HCLOUD_TOKEN` in the settings file (see Settings):
 
 ```sh
 cd hetzner
-echo 'hcloud_token = "..."' > secret.auto.tfvars
+export HCLOUD_TOKEN=$(sed -n 's/^HCLOUD_TOKEN=//p' ../../.env)
 tofu init
 tofu apply -var 'ssh_public_keys=["ssh-ed25519 AAAA... you"]' -var 'admin_cidrs=["YOUR.IP/32"]'
 tofu output -raw ip
@@ -39,6 +39,10 @@ The server is a cax11 (Arm, 2 vCPU, 4 GB) in Falkenstein, since Binance refuses 
 
 Then allow the server's IP on the exchange API key and deploy services over SSH. For the engine, that is `./deploy.sh deploy@SERVER_IP` in [candylario/trader](https://github.com/candylario/trader); the notifier and the app deploy the same way.
 
-State stays local and out of git. It holds no secrets: keys and `.env` reach the server through each service's deploy, never through here.
+State stays local and out of git. It holds no secrets: keys and settings reach the server through each service's deploy, never through here.
 
 `tofu -chdir=modules/host test` checks the bootstrap.
+
+## Settings
+
+Every setting lives in one file, `../.env`, next to the repos: shared keys first, then `[trader]`, `[notifier]` and `[app]` sections for each service's own values, such as its database password. `[user]` holds your own keys as a platform user: they go into the app, never to a server. `./env.sh SERVICE` prints one service's part, only the keys its `.env.example` lists, and that service's `deploy.sh` ships it.
