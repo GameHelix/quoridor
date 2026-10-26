@@ -1,6 +1,7 @@
 # One Candylario server at Hetzner Cloud: a server that runs the bootstrap at
-# first boot, kept by daily backups, behind a cloud firewall that lets in
-# only SSH from the admin networks. Services deploy onto it over SSH.
+# first boot, kept by daily backups, behind cloud firewalls that let in SSH
+# from the admin networks and web traffic from anyone. Services deploy onto it
+# over SSH.
 
 terraform {
   required_version = ">= 1.6"
@@ -79,6 +80,20 @@ resource "hcloud_firewall" "ssh_only" {
   }
 }
 
+# HTTP and HTTPS for the app, from anyone.
+resource "hcloud_firewall" "web" {
+  name = "${var.name}-web"
+  dynamic "rule" {
+    for_each = ["80", "443"]
+    content {
+      direction  = "in"
+      protocol   = "tcp"
+      port       = rule.value
+      source_ips = ["0.0.0.0/0", "::/0"]
+    }
+  }
+}
+
 resource "hcloud_server" "host" {
   name         = var.name
   server_type  = var.server_type
@@ -87,7 +102,7 @@ resource "hcloud_server" "host" {
   ssh_keys     = hcloud_ssh_key.admin[*].id
   user_data    = module.host.user_data
   backups      = true
-  firewall_ids = [hcloud_firewall.ssh_only.id]
+  firewall_ids = [hcloud_firewall.ssh_only.id, hcloud_firewall.web.id]
   labels       = { project = "candylario" }
 
   public_net {

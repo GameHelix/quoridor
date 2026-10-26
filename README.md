@@ -4,14 +4,14 @@ Servers for Candylario in HCL for [OpenTofu](https://opentofu.org) (Terraform wo
 
 - `modules/host`: the provider-neutral bootstrap that every server runs.
 - `existing`: runs the bootstrap over SSH on any server you have.
-- `hetzner`: one Hetzner Cloud server that runs the bootstrap at first boot, with daily backups and a cloud firewall for SSH only.
+- `hetzner`: one Hetzner Cloud server that runs the bootstrap at first boot, with daily backups and cloud firewalls that let in SSH from `admin_cidrs` and HTTP(S) from anyone.
 
 Another cloud gets its own small setup next to these. It only creates the machine and runs the same bootstrap at first boot.
 
 Every server ends up the same:
 
 - **Access:** a `deploy` user with your SSH keys. SSH takes keys only; root cannot log in.
-- **Firewall:** only SSH comes in, and only from `admin_cidrs`. fail2ban watches it.
+- **Firewall:** SSH comes in only from `admin_cidrs`, and fail2ban watches it. Ports a service publishes, such as the app's HTTPS, are open to all.
 - **Upkeep:** security updates install themselves, and the server gets swap.
 - **Runtime:** Docker with Compose and log rotation.
 
