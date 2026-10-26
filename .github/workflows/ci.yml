@@ -13,7 +13,7 @@ jobs:
           tofu_wrapper: false
       - run: tofu fmt -check -recursive
       - run: tofu -chdir=existing init -backend=false -input=false && tofu -chdir=existing validate
-      - run: tofu -chdir=digitalocean init -backend=false -input=false && tofu -chdir=digitalocean validate
+      - run: tofu -chdir=hetzner init -backend=false -input=false && tofu -chdir=hetzner validate
       - run: tofu -chdir=modules/host init -input=false && tofu -chdir=modules/host test
       - name: shellcheck the rendered bootstrap
         run: |
