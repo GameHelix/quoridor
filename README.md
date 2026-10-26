@@ -35,7 +35,7 @@ tofu apply -var 'ssh_public_keys=["ssh-ed25519 AAAA... you"]' -var 'admin_cidrs=
 tofu output -raw ip
 ```
 
-The server is a cx22 in Falkenstein, since Binance refuses US addresses; `-var location=nbg1` and `-var server_type=...` change that.
+The server is a cx22 in Falkenstein, since Binance refuses US addresses; `-var location=nbg1` and `-var server_type=...` change that. When your IP changes, apply again with the new one: only the cloud firewall changes, never the server.
 
 Then allow the server's IP on the exchange API key and deploy services over SSH. For the engine, that is `./deploy.sh deploy@SERVER_IP` in [candylario/trader](https://github.com/candylario/trader); the notifier and the app deploy the same way.
 

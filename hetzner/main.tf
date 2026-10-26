@@ -55,10 +55,12 @@ provider "hcloud" {
   token = var.hcloud_token != "" ? var.hcloud_token : null
 }
 
+# The server's own firewall lets SSH in from anywhere and the cloud firewall
+# narrows it to admin_cidrs, so a new admin IP is one apply away and can never
+# lock you out.
 module "host" {
   source          = "../modules/host"
   ssh_public_keys = var.ssh_public_keys
-  admin_cidrs     = var.admin_cidrs
 }
 
 resource "hcloud_ssh_key" "admin" {
@@ -91,6 +93,12 @@ resource "hcloud_server" "host" {
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
+  }
+
+  # The bootstrap and the keys count only at first boot; changing them later
+  # must not replace the server and the data on it.
+  lifecycle {
+    ignore_changes = [user_data, ssh_keys]
   }
 }
 
