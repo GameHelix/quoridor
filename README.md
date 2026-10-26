@@ -46,3 +46,16 @@ State stays local and out of git. It holds no secrets: keys and settings reach t
 ## Settings
 
 Every setting lives in one file, `../.env`, next to the repos: shared keys first, then `[trader]`, `[notifier]` and `[app]` sections for each service's own values, such as its database password. `[user]` holds your own keys as a platform user: they go into the app, never to a server. `./env.sh SERVICE` prints one service's part, only the keys its `.env.example` lists, and that service's `deploy.sh` ships it.
+
+## Backups
+
+Every night `backup/backup.sh` on the server copies the three databases and the engine's `data/` to S3-style object storage (Hetzner Object Storage), encrypted with [age](https://age-encryption.org) to `BACKUP_AGE_RECIPIENT`. The secret half, `BACKUP_AGE_IDENTITY`, stays in the central file and never reaches the server. Thirty days are kept, and a failed night emails the admin.
+
+```sh
+./backup/install.sh deploy@SERVER --now               # install, and back up once
+./backup/restore.sh deploy@SERVER                     # the days stored
+./backup/restore.sh deploy@SERVER DAY trader          # prove a backup in a scratch database
+./backup/restore.sh deploy@SERVER DAY trader --live   # replace the live database, and the engine's data/
+```
+
+The `[backup]` section of the central file holds `BACKUP_S3_ENDPOINT`, `BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY`, `BACKUP_S3_SECRET_KEY` and the age key pair.

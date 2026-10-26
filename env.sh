@@ -7,15 +7,16 @@
 # .env.example lists, so the app never holds the engine's master key. Each
 # service's deploy.sh ships this output.
 #
-#   ./env.sh trader|notifier|app
+#   ./env.sh trader|notifier|app|backup
 set -euo pipefail
 svc=${1:-}
 cd "$(dirname "$0")"
 src=../.env
 case $svc in
-trader | notifier | app) ;;
+trader | notifier | app) example=../$svc/.env.example ;;
+backup) example=backup/.env.example ;;
 *)
-  echo "usage: ./env.sh trader|notifier|app" >&2
+  echo "usage: ./env.sh trader|notifier|app|backup" >&2
   exit 1
   ;;
 esac
@@ -34,4 +35,4 @@ awk -v svc="$svc" '
     print k "=" v
     if (v == "") printf "%s: %s is empty\n", svc, k >"/dev/stderr"
   }
-' "$src" "../$svc/.env.example"
+' "$src" "$example"
