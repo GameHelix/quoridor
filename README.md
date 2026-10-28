@@ -41,6 +41,20 @@ Then allow the server's IP on the exchange API key and deploy services over SSH.
 
 State stays local and out of git. It holds no secrets: keys and settings reach the server through each service's deploy, never through here.
 
+## The server's address
+
+Users' live Binance keys accept orders only from the server's IPv4 address, so it must outlive the server. `hetzner/main.tf` manages it as `hcloud_primary_ip.ipv4` with `auto_delete = false` and `prevent_destroy`: deleting the server leaves the address in the project, and no apply can delete it. The address references the server from its own resource, and the server's `public_net` block stays as it was at creation, because the provider powers a server off to change that block.
+
+## Rebuilding the server
+
+Not rehearsed yet; rehearse it on a spare server before relying on it, and write down how long each step took.
+
+1. Make sure last night's backup exists (`./backup/restore.sh deploy@SERVER` lists the days) and that the age identity and the central `.env` are at hand.
+2. In `hetzner/main.tf`, move the address reference to the server side, which only matters at creation: in `hcloud_primary_ip.ipv4` replace `assignee_type` and `assignee_id` with `location = var.location`; in `hcloud_server.host` add `ipv4 = hcloud_primary_ip.ipv4.id` to `public_net`.
+3. `tofu apply -replace=hcloud_server.host`. The old server goes, the address stays, and the new server boots on it with the bootstrap; SSH host keys change, so remove the old entry from `~/.ssh/known_hosts`.
+4. Deploy the three services from their repos (`./deploy.sh deploy@SERVER`), then `./backup/install.sh deploy@SERVER` and `./backup/restore.sh deploy@SERVER DAY trader --live` for each service.
+5. Check `https://candy.surf/healthz` shows every service and its commit, and that Telegram answers `/status`. DNS needs no change.
+
 `tofu -chdir=modules/host test` checks the bootstrap.
 
 ## Settings
