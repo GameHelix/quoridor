@@ -96,8 +96,8 @@ resource "hcloud_firewall" "web" {
 
 # The IPv4 address outlives the server: users' live Binance keys accept
 # orders only from it, so a rebuilt server must come up on the same one. It
-# was created with the server and imported here; it is never deleted with
-# the server, and never by an apply. To rebuild, see the README.
+# was created with the server and imported on 2026-10-28; it is never
+# deleted with the server, and never by an apply. To rebuild, see the README.
 resource "hcloud_primary_ip" "ipv4" {
   name          = "${var.name}-ipv4"
   type          = "ipv4"
@@ -109,11 +109,6 @@ resource "hcloud_primary_ip" "ipv4" {
   lifecycle {
     prevent_destroy = true
   }
-}
-
-import {
-  to = hcloud_primary_ip.ipv4
-  id = "157917535"
 }
 
 resource "hcloud_server" "host" {
